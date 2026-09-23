@@ -1,4 +1,4 @@
-import { useColorScheme } from "react-native";
+import { useResolvedColorScheme } from "@/lib/themePreference";
 
 const light = {
   background: "#EAF4FF",
@@ -23,5 +23,5 @@ export type ThemeColors = typeof light;
 export const palettes = { light, dark };
 
 export function useThemeColors(): ThemeColors {
-  return useColorScheme() === "dark" ? dark : light;
+  return useResolvedColorScheme() === "dark" ? dark : light;
 }

@@ -6,13 +6,14 @@ A React Native weather app built to learn. Learning comes first, polish second.
 
 | Area | Decision |
 | --- | --- |
+| Platform | **Mobile only** (Android via Expo Go). Web is not a target. |
 | Toolchain | Expo (SDK 57), TypeScript, Expo Router |
 | Test device | Physical Android phone via Expo Go (+ emulator if available) |
 | Data | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs (free, no API key) |
 | Screens | Two routes: Home (`src/app/index.tsx`) and Search (`src/app/search.tsx`). Search returns the chosen city via `router.dismissTo("/", params)`; Home reads `name/latitude/longitude` params, falling back to GPS when absent. |
 | Fetching | Hand-rolled `fetch` + `useState`/`useEffect` first, refactor to TanStack Query later. No global state lib. |
 | Styling | Built-in `StyleSheet` |
-| Theme | Follow system light/dark via `useColorScheme` |
+| Theme | Theme button on Home opens a pop-up: System default / Light / Dark. Saved with AsyncStorage (`src/lib/themePreference.ts`); `useThemeColors()` follows the resolved choice. |
 | Location | `expo-location`, foreground permission. Denied/unavailable → show **Delhi** as the default city with a banner (Use my location / Open settings). Search is always available from the toolbar. |
 | Units | Metric only (°C, km/h, mm). Times in the city's local time (`timezone=auto`). |
 | Icons | WMO weather code → `{ label, icon }` table (`src/lib/weatherCodes.ts`) using `@expo/vector-icons` MaterialCommunityIcons. Note: `@expo/vector-icons` is slated for deprecation — migrate to `@react-native-vector-icons` later. |
@@ -34,7 +35,7 @@ Later: favourites, °C/°F toggle, weather-based backgrounds/animations, offline
 ```
 src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         http.ts (fetchJson: timeout + friendly errors), openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
-src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationBanner
+src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationBanner, ThemePickerModal
 src/lib/         weatherCodes.ts, formatting.ts, queryClient.ts (TanStack Query client + AppState focus)
 src/types/       weather.ts — app-owned shapes (Forecast, Place with name + address description)
 src/theme/       colors.ts — light/dark palettes + useThemeColors()

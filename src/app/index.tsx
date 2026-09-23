@@ -18,6 +18,7 @@ import { DailyList } from "@/components/DailyList";
 import { ErrorView } from "@/components/ErrorView";
 import { HourlyStrip } from "@/components/HourlyStrip";
 import { LocationBanner } from "@/components/LocationBanner";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
 import { useDeviceLocation } from "@/hooks/useDeviceLocation";
 import { useForecast } from "@/hooks/useForecast";
 import { useThemeColors } from "@/theme/colors";
@@ -133,6 +134,7 @@ function PlaceWeather({ place, showUseMyLocation = false, banner }: PlaceWeather
 
 function Toolbar({ showUseMyLocation }: { showUseMyLocation: boolean }) {
   const colors = useThemeColors();
+  const [themePickerOpen, setThemePickerOpen] = useState(false);
 
   return (
     <View style={styles.toolbar}>
@@ -147,18 +149,27 @@ function Toolbar({ showUseMyLocation }: { showUseMyLocation: boolean }) {
       ) : (
         <View />
       )}
-      <IconButton
-        icon="magnify"
-        label="Search for a city"
-        onPress={() => router.push("/search")}
-        color={colors.text}
-      />
+      <View style={styles.toolbarRight}>
+        <IconButton
+          icon="theme-light-dark"
+          label="Change theme"
+          onPress={() => setThemePickerOpen(true)}
+          color={colors.text}
+        />
+        <IconButton
+          icon="magnify"
+          label="Search for a city"
+          onPress={() => router.push("/search")}
+          color={colors.text}
+        />
+      </View>
+      <ThemePickerModal visible={themePickerOpen} onClose={() => setThemePickerOpen(false)} />
     </View>
   );
 }
 
 type IconButtonProps = {
-  icon: "crosshairs-gps" | "magnify";
+  icon: "crosshairs-gps" | "magnify" | "theme-light-dark";
   label: string;
   onPress: () => void;
   color: string;
@@ -241,6 +252,9 @@ function ForecastView({ place, forecast, onRefresh }: ForecastViewProps) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  toolbarRight: {
+    flexDirection: "row",
   },
   toolbar: {
     flexDirection: "row",
