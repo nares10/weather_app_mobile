@@ -54,3 +54,17 @@ export function getWeatherInfo(code: number, isDay = true): WeatherInfo {
   if (isDay) return info;
   return { ...info, icon: NIGHT_ICONS[info.icon] ?? info.icon };
 }
+
+// Every weather icon the app can show, with the conditions it stands for —
+// built from the table above so the help pop-up can't drift out of sync.
+export function weatherIconLegend(): { icon: IconName; labels: string[] }[] {
+  const byIcon = new Map<IconName, string[]>();
+  for (const { icon, label } of Object.values(WEATHER_CODES)) {
+    byIcon.set(icon, [...(byIcon.get(icon) ?? []), label]);
+  }
+  for (const [dayIcon, nightIcon] of Object.entries(NIGHT_ICONS)) {
+    const dayLabels = byIcon.get(dayIcon as IconName) ?? [];
+    byIcon.set(nightIcon, dayLabels.map((label) => `${label} (night)`));
+  }
+  return [...byIcon].map(([icon, labels]) => ({ icon, labels }));
+}

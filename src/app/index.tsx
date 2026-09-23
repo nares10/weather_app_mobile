@@ -18,6 +18,7 @@ import { DailyList } from "@/components/DailyList";
 import { ErrorView } from "@/components/ErrorView";
 import { HourlyStrip } from "@/components/HourlyStrip";
 import { LocationBanner } from "@/components/LocationBanner";
+import { HelpModal } from "@/components/HelpModal";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
 import { useDeviceLocation } from "@/hooks/useDeviceLocation";
 import { useForecast } from "@/hooks/useForecast";
@@ -135,6 +136,7 @@ function PlaceWeather({ place, showUseMyLocation = false, banner }: PlaceWeather
 function Toolbar({ showUseMyLocation }: { showUseMyLocation: boolean }) {
   const colors = useThemeColors();
   const [themePickerOpen, setThemePickerOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   return (
     <View style={styles.toolbar}>
@@ -151,6 +153,12 @@ function Toolbar({ showUseMyLocation }: { showUseMyLocation: boolean }) {
       )}
       <View style={styles.toolbarRight}>
         <IconButton
+          icon="information-outline"
+          label="Help: what the icons mean"
+          onPress={() => setHelpOpen(true)}
+          color={colors.text}
+        />
+        <IconButton
           icon="theme-light-dark"
           label="Change theme"
           onPress={() => setThemePickerOpen(true)}
@@ -164,12 +172,13 @@ function Toolbar({ showUseMyLocation }: { showUseMyLocation: boolean }) {
         />
       </View>
       <ThemePickerModal visible={themePickerOpen} onClose={() => setThemePickerOpen(false)} />
+      <HelpModal visible={helpOpen} onClose={() => setHelpOpen(false)} />
     </View>
   );
 }
 
 type IconButtonProps = {
-  icon: "crosshairs-gps" | "magnify" | "theme-light-dark";
+  icon: "crosshairs-gps" | "magnify" | "theme-light-dark" | "information-outline";
   label: string;
   onPress: () => void;
   color: string;
