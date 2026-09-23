@@ -1,56 +1,64 @@
-# Welcome to your Expo app 👋
+# Weather
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile weather app built with Expo and React Native, made as a way to learn React Native one milestone at a time. The plan and every design decision are in [PLAN.md](PLAN.md).
 
-## Get started
+The app targets Android through Expo Go. Web is not supported.
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- Current weather for where you are (GPS), with the full address (district, state and country).
+- If location is off or denied, Delhi is shown instead, with a banner to turn on location, allow permission or open Settings.
+- City search as you type, with debouncing and results showing region and country. The phone vibrates when you pick a city.
+- Hourly forecast for the next 24 hours and a 7-day forecast with chance of rain, all shown in the city's local time.
+- Pull to refresh, with a vibration when it finishes. Data also refreshes when you return to the app, and if a refresh fails the older data stays on screen with a note saying so.
+- Light, dark or system theme, chosen from a pop-up and remembered.
+- Help pop-up explaining every icon.
 
-2. Start the app
+Weather data comes from [Open-Meteo](https://open-meteo.com/). It's free and needs no API key.
 
-   ```bash
-   npx expo start
-   ```
+## Tech
 
-In the output, you'll find options to open the app in a
+| | |
+|---|---|
+| Framework | Expo SDK 57, React Native 0.86, TypeScript |
+| Navigation | Expo Router, with two screens: Home and Search |
+| Data | TanStack Query, `fetch` with timeouts and friendly errors |
+| Device | `expo-location`, `expo-haptics`, AsyncStorage |
+| Styling | React Native `StyleSheet` with a light/dark palette |
+| Tests | Jest (`jest-expo`) |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Run it
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+You'll need Node.js and the **Expo Go** app on your phone (from the Play Store).
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with Expo Go. Your phone and computer need to be on the same Wi-Fi; otherwise use `npx expo start --tunnel`.
 
-### Other setup steps
+If a change doesn't show up, restart with a cleared cache:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npx expo start --clear
+```
 
-## Learn more
+## Checks
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm test          # Jest unit tests
+npx tsc --noEmit  # typecheck
+npm run lint      # ESLint
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project structure
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+src/app/         Screens (Expo Router): index.tsx = Home, search.tsx
+src/api/         Open-Meteo clients: forecast, geocoding, shared fetchJson
+src/hooks/       useForecast, useDeviceLocation, useCitySearch, useDebouncedValue
+src/components/  UI pieces: current weather, hourly strip, daily list, banners, pop-ups
+src/lib/         Pure logic: weather codes, formatting, address, theme preference
+src/types/       App-owned data shapes (Forecast, Place)
+```

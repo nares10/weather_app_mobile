@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { EmptyState } from "@/components/EmptyState";
 import { MIN_QUERY_LENGTH, useCitySearch } from "@/hooks/useCitySearch";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useThemeColors } from "@/theme/colors";
@@ -68,7 +69,11 @@ export default function Search() {
       </View>
 
       {query.length < MIN_QUERY_LENGTH ? (
-        <Message text={`Type at least ${MIN_QUERY_LENGTH} letters to search.`} />
+        <EmptyState
+          icon="map-search-outline"
+          title="Find a city"
+          message={`Type at least ${MIN_QUERY_LENGTH} letters of a city's name.`}
+        />
       ) : search.data ? (
         <FlatList
           data={search.data}
@@ -76,7 +81,13 @@ export default function Search() {
           keyExtractor={(city) => String(city.id)}
           // Let the first tap select a row even while the keyboard is open.
           keyboardShouldPersistTaps="handled"
-          ListEmptyComponent={<Message text={`No cities found for “${query}”.`} />}
+          ListEmptyComponent={
+            <EmptyState
+              icon="map-marker-question-outline"
+              title={`No cities found for “${query}”`}
+              message="Check the spelling, or try a nearby bigger city."
+            />
+          }
           renderItem={({ item }) => (
             <Pressable
               onPress={() => selectCity(item)}
@@ -96,12 +107,12 @@ export default function Search() {
           )}
         />
       ) : search.isError ? (
-        <View style={styles.message}>
-          <Message text={search.error.message} />
-          <Pressable onPress={() => search.refetch()} accessibilityRole="button" hitSlop={8}>
-            <Text style={[styles.retry, { color: colors.accent }]}>Retry</Text>
-          </Pressable>
-        </View>
+        <EmptyState
+          icon="cloud-off-outline"
+          title="Couldn't search right now"
+          message={search.error.message}
+          action={{ label: "Retry", onPress: () => search.refetch() }}
+        />
       ) : (
         <ActivityIndicator style={styles.spinner} color={colors.accent} />
       )}
@@ -109,10 +120,6 @@ export default function Search() {
   );
 }
 
-function Message({ text }: { text: string }) {
-  const colors = useThemeColors();
-  return <Text style={[styles.messageText, { color: colors.textMuted }]}>{text}</Text>;
-}
 
 const styles = StyleSheet.create({
   screen: {
@@ -133,20 +140,6 @@ const styles = StyleSheet.create({
   },
   spinner: {
     marginTop: 32,
-  },
-  message: {
-    alignItems: "center",
-    gap: 12,
-  },
-  messageText: {
-    fontSize: 15,
-    textAlign: "center",
-    marginTop: 32,
-    paddingHorizontal: 32,
-  },
-  retry: {
-    fontSize: 16,
-    fontWeight: "600",
   },
   row: {
     paddingHorizontal: 16,

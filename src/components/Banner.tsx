@@ -1,23 +1,25 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import type { IconName } from "@/lib/weatherCodes";
 import { useThemeColors } from "@/theme/colors";
 
 type Props = {
+  icon: IconName;
   message: string;
-  // What the button says and does depends on *why* there's no location
-  // (permission denied, location switched off, ...), so the caller decides.
+  // What the button says and does depends on the situation, so the caller
+  // decides (e.g. "Turn on location", "Retry").
   action: { label: string; onPress: () => void };
 };
 
-// Shown above the default city's weather when we couldn't get the
-// device location, explaining why and offering a way to fix it.
-export function LocationBanner({ message, action }: Props) {
+// A one-line notice above the weather with an action button, e.g. why
+// we're showing Delhi, or that the latest refresh failed.
+export function Banner({ icon, message, action }: Props) {
   const colors = useThemeColors();
 
   return (
     <View style={[styles.banner, { backgroundColor: colors.card }]}>
-      <MaterialCommunityIcons name="map-marker-off-outline" size={22} color={colors.textMuted} />
+      <MaterialCommunityIcons name={icon} size={22} color={colors.textMuted} />
       <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
       <Pressable
         onPress={action.onPress}

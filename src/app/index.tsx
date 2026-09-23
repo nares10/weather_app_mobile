@@ -18,7 +18,7 @@ import { CurrentWeather } from "@/components/CurrentWeather";
 import { DailyList } from "@/components/DailyList";
 import { ErrorView } from "@/components/ErrorView";
 import { HourlyStrip } from "@/components/HourlyStrip";
-import { LocationBanner } from "@/components/LocationBanner";
+import { Banner } from "@/components/Banner";
 import { HelpModal } from "@/components/HelpModal";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
 import { useDeviceLocation } from "@/hooks/useDeviceLocation";
@@ -77,7 +77,8 @@ function DeviceLocationWeather() {
         <PlaceWeather
           place={DEFAULT_PLACE}
           banner={
-            <LocationBanner
+            <Banner
+              icon="map-marker-off-outline"
               message={`Location permission is off — showing ${DEFAULT_PLACE.name}.`}
               // Android stops showing the permission dialog after "Don't
               // ask again"; then the only way is the app's settings page.
@@ -95,7 +96,8 @@ function DeviceLocationWeather() {
         <PlaceWeather
           place={DEFAULT_PLACE}
           banner={
-            <LocationBanner
+            <Banner
+              icon="map-marker-off-outline"
               message={`${location.message} Showing ${DEFAULT_PLACE.name}.`}
               action={
                 location.servicesOff
@@ -135,10 +137,20 @@ function PlaceWeather({ place, showUseMyLocation = false, banner }: PlaceWeather
     body = <Loading label="Loading weather…" />;
   }
 
+  // A refresh failed but we still have older data: say so, and when it's from.
+  const stale = forecast.data !== undefined && forecast.isError;
+
   return (
     <>
       <Toolbar showUseMyLocation={showUseMyLocation} />
       {banner}
+      {stale && (
+        <Banner
+          icon="cloud-off-outline"
+          message={`Couldn't update. Showing weather from ${formatClockTime(forecast.dataUpdatedAt)}.`}
+          action={{ label: "Retry", onPress: () => forecast.refetch() }}
+        />
+      )}
       {body}
     </>
   );
@@ -296,3 +308,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 });
+
+// When the data was fetched, in the phone's own time: "14:05".
+function formatClockTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
