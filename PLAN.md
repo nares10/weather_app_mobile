@@ -36,9 +36,9 @@ src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         openMeteo.ts, geocoding.ts
 src/components/  CurrentWeather, HourlyStrip, DailyList
 src/lib/         weatherCodes.ts, formatting.ts
-src/types/        weather.ts — app-owned shapes; API code converts into these
-src/theme/        colors.ts — light/dark palettes + useThemeColors()
-src/data/         fakeForecast.ts (milestone 2 only)
+src/types/       weather.ts — app-owned shapes; API code converts into these
+src/theme/       colors.ts — light/dark palettes + useThemeColors()
+src/data/        fakeForecast.ts (milestone 2 only)
 ```
 
 ## Milestones
