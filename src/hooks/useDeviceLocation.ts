@@ -8,7 +8,8 @@ export type DeviceLocationState =
   // canAskAgain = false means Android won't show the permission dialog any
   // more ("Don't ask again"); the user has to enable it in Settings.
   | { status: "denied"; canAskAgain: boolean }
-  | { status: "unavailable"; message: string }
+  // servicesOff = the phone's location switch is off (vs. some other failure).
+  | { status: "unavailable"; servicesOff: boolean; message: string }
   | { status: "found"; place: Place };
 
 type SettledResult = Exclude<DeviceLocationState, { status: "locating" }>;
@@ -41,7 +42,20 @@ export function useDeviceLocation() {
       ? { status: "locating" }
       : query.data;
 
-  return { state, retry: () => query.refetch() };
+  const retry = () => query.refetch();
+
+  // Shows Android's "Turn on location?" dialog, then tries again.
+  // Rejects if the user taps "No thanks" — then there's nothing to retry.
+  const turnOnLocation = async () => {
+    try {
+      await Location.enableNetworkProviderAsync();
+    } catch {
+      return;
+    }
+    retry();
+  };
+
+  return { state, retry, turnOnLocation };
 }
 
 async function findDeviceLocation(): Promise<SettledResult> {
@@ -54,7 +68,7 @@ async function findDeviceLocation(): Promise<SettledResult> {
     }
 
     if (!(await Location.hasServicesEnabledAsync())) {
-      return { status: "unavailable", message: "Location is turned off on this device." };
+      return { status: "unavailable", servicesOff: true, message: "Location is turned off." };
     }
 
     // The cached fix is instant; a fresh one can take several seconds.
@@ -71,7 +85,7 @@ async function findDeviceLocation(): Promise<SettledResult> {
       place: { ...(await describePlace(latitude, longitude)), latitude, longitude },
     };
   } catch {
-    return { status: "unavailable", message: "Couldn't find your location." };
+    return { status: "unavailable", servicesOff: false, message: "Couldn't find your location." };
   }
 }
 

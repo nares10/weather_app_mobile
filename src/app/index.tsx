@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { type ReactNode, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -66,7 +67,7 @@ const DEFAULT_PLACE: Place = {
 };
 
 function DeviceLocationWeather() {
-  const { state: location, retry } = useDeviceLocation();
+  const { state: location, retry, turnOnLocation } = useDeviceLocation();
 
   switch (location.status) {
     case "locating":
@@ -77,8 +78,14 @@ function DeviceLocationWeather() {
           place={DEFAULT_PLACE}
           banner={
             <LocationBanner
-              message={`Location is off — showing ${DEFAULT_PLACE.name}.`}
-              onRetry={location.canAskAgain ? retry : undefined}
+              message={`Location permission is off — showing ${DEFAULT_PLACE.name}.`}
+              // Android stops showing the permission dialog after "Don't
+              // ask again"; then the only way is the app's settings page.
+              action={
+                location.canAskAgain
+                  ? { label: "Use my location", onPress: retry }
+                  : { label: "Open settings", onPress: () => Linking.openSettings() }
+              }
             />
           }
         />
@@ -90,7 +97,11 @@ function DeviceLocationWeather() {
           banner={
             <LocationBanner
               message={`${location.message} Showing ${DEFAULT_PLACE.name}.`}
-              onRetry={retry}
+              action={
+                location.servicesOff
+                  ? { label: "Turn on location", onPress: turnOnLocation }
+                  : { label: "Try again", onPress: retry }
+              }
             />
           }
         />

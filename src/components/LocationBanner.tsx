@@ -1,18 +1,18 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColors } from "@/theme/colors";
 
 type Props = {
   message: string;
-  // Omit to show "Open settings" instead — used when Android will no
-  // longer show the permission dialog.
-  onRetry?: () => void;
+  // What the button says and does depends on *why* there's no location
+  // (permission denied, location switched off, ...), so the caller decides.
+  action: { label: string; onPress: () => void };
 };
 
 // Shown above the default city's weather when we couldn't get the
 // device location, explaining why and offering a way to fix it.
-export function LocationBanner({ message, onRetry }: Props) {
+export function LocationBanner({ message, action }: Props) {
   const colors = useThemeColors();
 
   return (
@@ -20,14 +20,12 @@ export function LocationBanner({ message, onRetry }: Props) {
       <MaterialCommunityIcons name="map-marker-off-outline" size={22} color={colors.textMuted} />
       <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
       <Pressable
-        onPress={onRetry ?? (() => Linking.openSettings())}
+        onPress={action.onPress}
         accessibilityRole="button"
         hitSlop={8}
         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
       >
-        <Text style={[styles.action, { color: colors.accent }]}>
-          {onRetry ? "Use my location" : "Open settings"}
-        </Text>
+        <Text style={[styles.action, { color: colors.accent }]}>{action.label}</Text>
       </Pressable>
     </View>
   );
