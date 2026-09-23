@@ -1,8 +1,16 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CurrentWeather } from "@/components/CurrentWeather";
 import { DailyList } from "@/components/DailyList";
@@ -83,14 +91,23 @@ function DeviceLocationWeather() {
 // hooks can't be called conditionally, but components can be rendered
 // conditionally.
 function PlaceWeather({ place, showUseMyLocation = false }: { place: Place; showUseMyLocation?: boolean }) {
-  const { state, retry } = useForecast(place.latitude, place.longitude, place.name);
+  const forecast = useForecast(place);
+
+  // Order matters: if a background refresh fails we still have the old
+  // data, and showing it beats replacing the screen with an error.
+  let body;
+  if (forecast.data) {
+    body = <ForecastView forecast={forecast.data} onRefresh={forecast.refetch} />;
+  } else if (forecast.isError) {
+    body = <ErrorView message={forecast.error.message} onRetry={() => forecast.refetch()} />;
+  } else {
+    body = <Loading label="Loading weather…" />;
+  }
 
   return (
     <>
       <Toolbar showUseMyLocation={showUseMyLocation} />
-      {state.status === "loading" && <Loading label="Loading weather…" />}
-      {state.status === "error" && <ErrorView message={state.message} onRetry={retry} />}
-      {state.status === "success" && <ForecastView forecast={state.forecast} />}
+      {body}
     </>
   );
 }
@@ -152,11 +169,38 @@ function Loading({ label }: { label: string }) {
   );
 }
 
-function ForecastView({ forecast }: { forecast: Forecast }) {
+type ForecastViewProps = {
+  forecast: Forecast;
+  onRefresh: () => Promise<unknown>;
+};
+
+function ForecastView({ forecast, onRefresh }: ForecastViewProps) {
+  const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const today = forecast.daily[0];
 
+  // Track pull-to-refresh ourselves rather than using the query's
+  // isRefetching, so automatic background refreshes (e.g. when the app
+  // returns to the foreground) don't show the spinner.
+  const [pulling, setPulling] = useState(false);
+  const refresh = async () => {
+    setPulling(true);
+    await onRefresh();
+    setPulling(false);
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+      refreshControl={
+        <RefreshControl
+          refreshing={pulling}
+          onRefresh={refresh}
+          tintColor={colors.accent} // iOS
+          colors={[colors.accent]} // Android
+        />
+      }
+    >
       <CurrentWeather
         locationName={forecast.locationName}
         current={forecast.current}

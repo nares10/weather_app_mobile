@@ -1,5 +1,7 @@
 import type { Forecast } from "@/types/weather";
 
+import { fetchJson } from "./http";
+
 // Open-Meteo forecast API — free, no key. Docs: https://open-meteo.com/en/docs
 const BASE_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -33,11 +35,6 @@ type OpenMeteoResponse = {
   };
 };
 
-type OpenMeteoError = {
-  error: true;
-  reason: string;
-};
-
 export async function fetchForecast(
   latitude: number,
   longitude: number,
@@ -55,13 +52,7 @@ export async function fetchForecast(
     forecast_days: "7",
   });
 
-  const response = await fetch(`${BASE_URL}?${params}`, { signal });
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as OpenMeteoError | null;
-    throw new Error(body?.reason ?? `Weather service error (${response.status})`);
-  }
-
-  const data = (await response.json()) as OpenMeteoResponse;
+  const data = await fetchJson<OpenMeteoResponse>(`${BASE_URL}?${params}`, signal);
   return parseForecast(data, locationName);
 }
 

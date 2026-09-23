@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MIN_QUERY_LENGTH, useCitySearch } from "@/hooks/useCitySearch";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -22,7 +23,8 @@ export default function Search() {
   const colors = useThemeColors();
   const [text, setText] = useState("");
   const query = useDebouncedValue(text.trim(), DEBOUNCE_MS);
-  const { state, retry } = useCitySearch(query);
+  const search = useCitySearch(query);
+  const insets = useSafeAreaInsets();
 
   // Go back to Home, handing it the chosen city as route params.
   // dismissTo pops Search off the stack rather than pushing a new Home.
@@ -52,6 +54,7 @@ export default function Search() {
           returnKeyType="search"
           accessibilityLabel="City name"
         />
+        {search.isFetching && <ActivityIndicator size="small" color={colors.textMuted} />}
         {text.length > 0 && (
           <Pressable onPress={() => setText("")} accessibilityLabel="Clear search" hitSlop={8}>
             <MaterialCommunityIcons name="close-circle" size={20} color={colors.textMuted} />
@@ -59,23 +62,12 @@ export default function Search() {
         )}
       </View>
 
-      {state.status === "idle" && (
+      {query.length < MIN_QUERY_LENGTH ? (
         <Message text={`Type at least ${MIN_QUERY_LENGTH} letters to search.`} />
-      )}
-      {state.status === "loading" && (
-        <ActivityIndicator style={styles.spinner} color={colors.accent} />
-      )}
-      {state.status === "error" && (
-        <View style={styles.message}>
-          <Message text={state.message} />
-          <Pressable onPress={retry} accessibilityRole="button" hitSlop={8}>
-            <Text style={[styles.retry, { color: colors.accent }]}>Retry</Text>
-          </Pressable>
-        </View>
-      )}
-      {state.status === "success" && (
+      ) : search.data ? (
         <FlatList
-          data={state.results}
+          data={search.data}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
           keyExtractor={(city) => String(city.id)}
           // Let the first tap select a row even while the keyboard is open.
           keyboardShouldPersistTaps="handled"
@@ -98,6 +90,15 @@ export default function Search() {
             </Pressable>
           )}
         />
+      ) : search.isError ? (
+        <View style={styles.message}>
+          <Message text={search.error.message} />
+          <Pressable onPress={() => search.refetch()} accessibilityRole="button" hitSlop={8}>
+            <Text style={[styles.retry, { color: colors.accent }]}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <ActivityIndicator style={styles.spinner} color={colors.accent} />
       )}
     </View>
   );

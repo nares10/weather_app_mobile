@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
-import { useEffect, useState } from "react";
 
 import type { Place } from "@/types/weather";
 
@@ -18,30 +18,30 @@ const POSITION_TIMEOUT_MS = 15_000;
 const LAST_KNOWN_MAX_AGE_MS = 10 * 60 * 1000;
 
 export function useDeviceLocation() {
-  const [attempt, setAttempt] = useState(0);
-  const [result, setResult] = useState<{ attempt: number; value: SettledResult } | null>(null);
+  const query = useQuery({
+    queryKey: ["deviceLocation"],
+    queryFn: findDeviceLocation, // never throws — failures are results
+    retry: false,
+    // A position is good until the user asks again...
+    staleTime: Infinity,
+    // ...but if the user had to fix something outside the app (turn on
+    // location, or grant permission in Settings), check again when the app
+    // returns to the foreground. Not when the permission dialog could still
+    // appear — that would pop it up every time the app is reopened.
+    refetchOnWindowFocus: (q) => {
+      const data = q.state.data;
+      return data?.status === "unavailable" || (data?.status === "denied" && !data.canAskAgain);
+    },
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    findDeviceLocation().then((value) => {
-      if (!cancelled) setResult({ attempt, value });
-    });
-
-    // We can't abort the native location request, but we can ignore its
-    // result if the screen has gone away or a retry has started.
-    return () => {
-      cancelled = true;
-    };
-  }, [attempt]);
-
-  // Same trick as useForecast: "locating" is derived, not stored.
+  // Show "locating" on the first attempt and on manual retries of a failed
+  // attempt; a background re-check of a found location stays invisible.
   const state: DeviceLocationState =
-    result?.attempt === attempt ? result.value : { status: "locating" };
+    !query.data || (query.isFetching && query.data.status !== "found")
+      ? { status: "locating" }
+      : query.data;
 
-  const retry = () => setAttempt((n) => n + 1);
-
-  return { state, retry };
+  return { state, retry: () => query.refetch() };
 }
 
 async function findDeviceLocation(): Promise<SettledResult> {

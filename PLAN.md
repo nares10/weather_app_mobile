@@ -33,9 +33,9 @@ Later: favourites, °C/°F toggle, weather-based backgrounds/animations, offline
 
 ```
 src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
-src/api/         openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
+src/api/         http.ts (fetchJson: timeout + friendly errors), openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
 src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationFallback
-src/lib/         weatherCodes.ts, formatting.ts
+src/lib/         weatherCodes.ts, formatting.ts, queryClient.ts (TanStack Query client + AppState focus)
 src/types/       weather.ts — app-owned shapes; API code converts into these
 src/theme/       colors.ts — light/dark palettes + useThemeColors()
 src/hooks/       useForecast, useDeviceLocation, useCitySearch, useDebouncedValue
@@ -48,6 +48,6 @@ src/hooks/       useForecast, useDeviceLocation, useCitySearch, useDebouncedValu
 - [x] 3. **Real data** — fetch Open-Meteo for a fixed lat/lon, types, weather-code mapping, loading/error states
 - [x] 4. **Location** — `expo-location`, permission flow, fallback to Search
 - [x] 5. **Search** — Search screen, geocoding API, pick result → back to Home
-- [ ] 6. **Refactor** — TanStack Query, pull-to-refresh
+- [x] 6. **Refactor** — TanStack Query, pull-to-refresh
 - [ ] 7. **Tests** — Jest for weather-code mapping and parsing
 - [ ] 8. **Polish** — empty/error screens, app icon/name
