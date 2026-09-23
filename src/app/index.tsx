@@ -1,23 +1,39 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { CurrentWeather } from "@/components/CurrentWeather";
+import { DailyList } from "@/components/DailyList";
+import { HourlyStrip } from "@/components/HourlyStrip";
+import { fakeForecast } from "@/data/fakeForecast";
+import { useThemeColors } from "@/theme/colors";
 
 export default function Home() {
+  const colors = useThemeColors();
+  const forecast = fakeForecast;
+  const today = forecast.daily[0];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Weather</Text>
-      <Text>Milestone 1: the app runs on your phone 🎉</Text>
-    </View>
+    <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]} edges={["top"]}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <CurrentWeather
+          locationName={forecast.locationName}
+          current={forecast.current}
+          todayMin={today.minTemperature}
+          todayMax={today.maxTemperature}
+        />
+        <HourlyStrip hours={forecast.hourly} />
+        <DailyList days={forecast.daily} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
+  content: {
+    padding: 16,
+    gap: 16,
   },
 });

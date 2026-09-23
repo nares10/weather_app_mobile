@@ -15,7 +15,7 @@ A React Native weather app built to learn. Learning comes first, polish second.
 | Theme | Follow system light/dark via `useColorScheme` |
 | Location | `expo-location`, foreground permission. Denied/unavailable → open Search. |
 | Units | Metric only (°C, km/h, mm). Times in the city's local time (`timezone=auto`). |
-| Icons | WMO weather code → `{ label, icon }` table using `@expo/vector-icons` |
+| Icons | WMO weather code → `{ label, icon }` table (`src/lib/weatherCodes.ts`) using `@expo/vector-icons` MaterialCommunityIcons. Note: `@expo/vector-icons` is slated for deprecation — migrate to `@react-native-vector-icons` later. |
 | Search | Search-as-you-type, 400ms debounce, min 2 chars. No recent searches in v1. |
 | Errors | Friendly error + Retry. No offline cache in v1. |
 | Tests | Jest for pure logic (weather-code mapping, response parsing) |
@@ -36,13 +36,15 @@ src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         openMeteo.ts, geocoding.ts
 src/components/  CurrentWeather, HourlyStrip, DailyList
 src/lib/         weatherCodes.ts, formatting.ts
-src/types/
+src/types/        weather.ts — app-owned shapes; API code converts into these
+src/theme/        colors.ts — light/dark palettes + useThemeColors()
+src/data/         fakeForecast.ts (milestone 2 only)
 ```
 
 ## Milestones
 
 - [x] 1. **Scaffold** — create Expo app, run on phone, git
-- [ ] 2. **Static UI** — Home screen with hard-coded fake data (current, hourly strip, daily list)
+- [x] 2. **Static UI** — Home screen with hard-coded fake data (current, hourly strip, daily list)
 - [ ] 3. **Real data** — fetch Open-Meteo for a fixed lat/lon, types, weather-code mapping, loading/error states
 - [ ] 4. **Location** — `expo-location`, permission flow, fallback to Search
 - [ ] 5. **Search** — Search screen, geocoding API, pick result → back to Home
