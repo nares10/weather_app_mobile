@@ -20,6 +20,8 @@ const dark: typeof light = {
 
 export type ThemeColors = typeof light;
 
+export const palettes = { light, dark };
+
 export function useThemeColors(): ThemeColors {
   return useColorScheme() === "dark" ? dark : light;
 }

@@ -35,3 +35,10 @@ export type Forecast = {
   hourly: HourlyForecast[];
   daily: DailyForecast[];
 };
+
+// A named point on the map — from GPS (milestone 4) or search (milestone 5).
+export type Place = {
+  name: string;
+  latitude: number;
+  longitude: number;
+};

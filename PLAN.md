@@ -34,11 +34,11 @@ Later: favourites, °C/°F toggle, weather-based backgrounds/animations, offline
 ```
 src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
-src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView
+src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationFallback
 src/lib/         weatherCodes.ts, formatting.ts
 src/types/       weather.ts — app-owned shapes; API code converts into these
 src/theme/       colors.ts — light/dark palettes + useThemeColors()
-src/hooks/       useForecast.ts — fetch + loading/error/success state
+src/hooks/       useForecast.ts, useDeviceLocation.ts (permission → GPS → place name)
 ```
 
 ## Milestones
@@ -46,7 +46,7 @@ src/hooks/       useForecast.ts — fetch + loading/error/success state
 - [x] 1. **Scaffold** — create Expo app, run on phone, git
 - [x] 2. **Static UI** — Home screen with hard-coded fake data (current, hourly strip, daily list)
 - [x] 3. **Real data** — fetch Open-Meteo for a fixed lat/lon, types, weather-code mapping, loading/error states
-- [ ] 4. **Location** — `expo-location`, permission flow, fallback to Search
+- [x] 4. **Location** — `expo-location`, permission flow, fallback to Search
 - [ ] 5. **Search** — Search screen, geocoding API, pick result → back to Home
 - [ ] 6. **Refactor** — TanStack Query, pull-to-refresh
 - [ ] 7. **Tests** — Jest for weather-code mapping and parsing
