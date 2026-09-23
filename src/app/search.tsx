@@ -1,4 +1,5 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -29,6 +30,9 @@ export default function Search() {
   // Go back to Home, handing it the chosen city as route params.
   // dismissTo pops Search off the stack rather than pushing a new Home.
   const selectCity = (city: CitySearchResult) => {
+    // A short vibration confirms the pick. Fire-and-forget: if the device
+    // can't vibrate (or haptics are off), just carry on.
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     router.dismissTo({
       pathname: "/",
       params: {
