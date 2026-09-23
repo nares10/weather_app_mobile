@@ -1,3 +1,4 @@
+import { formatAddress } from "@/lib/address";
 import type { CitySearchResult } from "@/types/weather";
 
 import { fetchJson } from "./http";
@@ -28,14 +29,6 @@ export async function searchCities(query: string, signal?: AbortSignal): Promise
     name: city.name,
     latitude: city.latitude,
     longitude: city.longitude,
-    description: describe(city.name, [city.admin2, city.admin1, city.country]),
+    description: formatAddress(city.name, [city.admin2, city.admin1, city.country]),
   }));
-}
-
-// "Jaipur" + ["Jaipur district", "Rajasthan", "India"] -> "Rajasthan, India".
-// Skip blanks and parts that just repeat the city name.
-function describe(name: string, parts: (string | undefined)[]): string {
-  return parts
-    .filter((part): part is string => !!part && !part.includes(name))
-    .join(", ");
 }

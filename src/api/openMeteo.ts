@@ -10,7 +10,7 @@ const HOURS_TO_SHOW = 24;
 // The raw response, limited to the fields we request below. Open-Meteo
 // returns hourly/daily data as parallel arrays: hourly.time[i] goes with
 // hourly.temperature_2m[i], and so on.
-type OpenMeteoResponse = {
+export type OpenMeteoResponse = {
   current: {
     time: string;
     temperature_2m: number;

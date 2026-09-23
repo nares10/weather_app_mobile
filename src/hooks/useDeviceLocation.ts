@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
 
+import { formatAddress } from "@/lib/address";
 import type { Place } from "@/types/weather";
 
 export type DeviceLocationState =
@@ -104,11 +105,8 @@ async function describePlace(
     const name = address.city ?? address.district ?? address.subregion ?? address.region;
     if (!name) throw new Error("No name");
 
-    // Neighbourhood, state, country — skipping blanks and repeats of the name.
-    const parts = [address.district, address.region, address.country].filter(
-      (part, i, all): part is string => !!part && part !== name && all.indexOf(part) === i,
-    );
-    return { name, description: parts.join(", ") };
+    // Neighbourhood, state, country.
+    return { name, description: formatAddress(name, [address.district, address.region, address.country]) };
   } catch {
     return { name: "Current location", description: "" };
   }
