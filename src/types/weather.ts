@@ -42,3 +42,9 @@ export type Place = {
   latitude: number;
   longitude: number;
 };
+
+// One row in the city search results.
+export type CitySearchResult = Place & {
+  id: number;
+  description: string; // e.g. "Rajasthan, India"
+};

@@ -9,7 +9,7 @@ A React Native weather app built to learn. Learning comes first, polish second.
 | Toolchain | Expo (SDK 57), TypeScript, Expo Router |
 | Test device | Physical Android phone via Expo Go (+ emulator if available) |
 | Data | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs (free, no API key) |
-| Screens | Two routes: Home (`src/app/index.tsx`) and Search (`src/app/search.tsx`) — push/back |
+| Screens | Two routes: Home (`src/app/index.tsx`) and Search (`src/app/search.tsx`). Search returns the chosen city via `router.dismissTo("/", params)`; Home reads `name/latitude/longitude` params, falling back to GPS when absent. |
 | Fetching | Hand-rolled `fetch` + `useState`/`useEffect` first, refactor to TanStack Query later. No global state lib. |
 | Styling | Built-in `StyleSheet` |
 | Theme | Follow system light/dark via `useColorScheme` |
@@ -38,7 +38,7 @@ src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationFall
 src/lib/         weatherCodes.ts, formatting.ts
 src/types/       weather.ts — app-owned shapes; API code converts into these
 src/theme/       colors.ts — light/dark palettes + useThemeColors()
-src/hooks/       useForecast.ts, useDeviceLocation.ts (permission → GPS → place name)
+src/hooks/       useForecast, useDeviceLocation, useCitySearch, useDebouncedValue
 ```
 
 ## Milestones
@@ -47,7 +47,7 @@ src/hooks/       useForecast.ts, useDeviceLocation.ts (permission → GPS → pl
 - [x] 2. **Static UI** — Home screen with hard-coded fake data (current, hourly strip, daily list)
 - [x] 3. **Real data** — fetch Open-Meteo for a fixed lat/lon, types, weather-code mapping, loading/error states
 - [x] 4. **Location** — `expo-location`, permission flow, fallback to Search
-- [ ] 5. **Search** — Search screen, geocoding API, pick result → back to Home
+- [x] 5. **Search** — Search screen, geocoding API, pick result → back to Home
 - [ ] 6. **Refactor** — TanStack Query, pull-to-refresh
 - [ ] 7. **Tests** — Jest for weather-code mapping and parsing
 - [ ] 8. **Polish** — empty/error screens, app icon/name
