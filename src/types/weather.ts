@@ -30,7 +30,6 @@ export type DailyForecast = {
 };
 
 export type Forecast = {
-  locationName: string;
   current: CurrentConditions;
   hourly: HourlyForecast[];
   daily: DailyForecast[];
@@ -38,7 +37,9 @@ export type Forecast = {
 
 // A named point on the map — from GPS (milestone 4) or search (milestone 5).
 export type Place = {
-  name: string;
+  name: string; // e.g. "Jaipur"
+  // The rest of the address, e.g. "Rajasthan, India". Empty if unknown.
+  description: string;
   latitude: number;
   longitude: number;
 };
@@ -46,5 +47,4 @@ export type Place = {
 // One row in the city search results.
 export type CitySearchResult = Place & {
   id: number;
-  description: string; // e.g. "Rajasthan, India"
 };

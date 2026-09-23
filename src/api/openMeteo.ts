@@ -38,7 +38,6 @@ type OpenMeteoResponse = {
 export async function fetchForecast(
   latitude: number,
   longitude: number,
-  locationName: string,
   signal?: AbortSignal,
 ): Promise<Forecast> {
   const params = new URLSearchParams({
@@ -53,12 +52,12 @@ export async function fetchForecast(
   });
 
   const data = await fetchJson<OpenMeteoResponse>(`${BASE_URL}?${params}`, signal);
-  return parseForecast(data, locationName);
+  return parseForecast(data);
 }
 
 // Pure function: raw API data in, app `Forecast` out. Kept separate from
 // the fetch so it can be unit-tested without the network (milestone 7).
-export function parseForecast(data: OpenMeteoResponse, locationName: string): Forecast {
+export function parseForecast(data: OpenMeteoResponse): Forecast {
   const { current, hourly, daily } = data;
 
   // Hourly data starts at midnight today. Skip to the current hour:
@@ -70,7 +69,6 @@ export function parseForecast(data: OpenMeteoResponse, locationName: string): Fo
   );
 
   return {
-    locationName,
     current: {
       time: current.time,
       temperature: current.temperature_2m,

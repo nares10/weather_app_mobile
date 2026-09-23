@@ -33,6 +33,7 @@ export default function Search() {
       pathname: "/",
       params: {
         name: city.name,
+        description: city.description,
         latitude: String(city.latitude),
         longitude: String(city.longitude),
       },

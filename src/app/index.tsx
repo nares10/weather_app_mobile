@@ -26,6 +26,7 @@ import type { Forecast, Place } from "@/types/weather";
 // can end up in a URL on web).
 type HomeParams = {
   name?: string;
+  description?: string;
   latitude?: string;
   longitude?: string;
 };
@@ -45,12 +46,12 @@ export default function Home() {
   );
 }
 
-function placeFromParams({ name, latitude, longitude }: HomeParams): Place | null {
+function placeFromParams({ name, description, latitude, longitude }: HomeParams): Place | null {
   const lat = Number(latitude);
   const lon = Number(longitude);
   if (!name || latitude === undefined || longitude === undefined) return null;
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  return { name, latitude: lat, longitude: lon };
+  return { name, description: description ?? "", latitude: lat, longitude: lon };
 }
 
 // Module-level, so it survives this component unmounting and remounting
@@ -97,7 +98,7 @@ function PlaceWeather({ place, showUseMyLocation = false }: { place: Place; show
   // data, and showing it beats replacing the screen with an error.
   let body;
   if (forecast.data) {
-    body = <ForecastView forecast={forecast.data} onRefresh={forecast.refetch} />;
+    body = <ForecastView place={place} forecast={forecast.data} onRefresh={forecast.refetch} />;
   } else if (forecast.isError) {
     body = <ErrorView message={forecast.error.message} onRetry={() => forecast.refetch()} />;
   } else {
@@ -170,11 +171,12 @@ function Loading({ label }: { label: string }) {
 }
 
 type ForecastViewProps = {
+  place: Place;
   forecast: Forecast;
   onRefresh: () => Promise<unknown>;
 };
 
-function ForecastView({ forecast, onRefresh }: ForecastViewProps) {
+function ForecastView({ place, forecast, onRefresh }: ForecastViewProps) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const today = forecast.daily[0];
@@ -202,7 +204,7 @@ function ForecastView({ forecast, onRefresh }: ForecastViewProps) {
       }
     >
       <CurrentWeather
-        locationName={forecast.locationName}
+        place={place}
         current={forecast.current}
         todayMin={today.minTemperature}
         todayMax={today.maxTemperature}

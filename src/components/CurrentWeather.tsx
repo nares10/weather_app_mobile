@@ -4,22 +4,25 @@ import { StyleSheet, Text, View } from "react-native";
 import { formatTemperature } from "@/lib/formatting";
 import { getWeatherInfo } from "@/lib/weatherCodes";
 import { useThemeColors } from "@/theme/colors";
-import type { CurrentConditions } from "@/types/weather";
+import type { CurrentConditions, Place } from "@/types/weather";
 
 type Props = {
-  locationName: string;
+  place: Place;
   current: CurrentConditions;
   todayMin: number;
   todayMax: number;
 };
 
-export function CurrentWeather({ locationName, current, todayMin, todayMax }: Props) {
+export function CurrentWeather({ place, current, todayMin, todayMax }: Props) {
   const colors = useThemeColors();
   const { label, icon } = getWeatherInfo(current.weatherCode, current.isDay);
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.location, { color: colors.text }]}>{locationName}</Text>
+      <Text style={[styles.location, { color: colors.text }]}>{place.name}</Text>
+      {place.description !== "" && (
+        <Text style={[styles.address, { color: colors.textMuted }]}>{place.description}</Text>
+      )}
       <MaterialCommunityIcons name={icon} size={96} color={colors.accent} />
       <Text style={[styles.temperature, { color: colors.text }]}>
         {formatTemperature(current.temperature)}
@@ -63,6 +66,11 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 28,
     fontWeight: "600",
+    textAlign: "center",
+  },
+  address: {
+    fontSize: 14,
+    textAlign: "center",
   },
   temperature: {
     fontSize: 72,

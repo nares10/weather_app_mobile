@@ -68,21 +68,35 @@ async function findDeviceLocation(): Promise<SettledResult> {
     const { latitude, longitude } = position.coords;
     return {
       status: "found",
-      place: { name: await placeName(latitude, longitude), latitude, longitude },
+      place: { ...(await describePlace(latitude, longitude)), latitude, longitude },
     };
   } catch {
     return { status: "unavailable", message: "Couldn't find your location." };
   }
 }
 
-// Turn coordinates into a human name. Only works on Android/iOS, and can
-// fail (offline, rate-limited), so it's optional.
-async function placeName(latitude: number, longitude: number): Promise<string> {
+// Turn coordinates into a name + address line, e.g.
+// { name: "Jaipur", description: "Malviya Nagar, Rajasthan, India" }.
+// Reverse geocoding only works on Android/iOS and can fail (offline,
+// rate-limited), so it's optional.
+async function describePlace(
+  latitude: number,
+  longitude: number,
+): Promise<{ name: string; description: string }> {
   try {
     const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
-    return address?.city ?? address?.district ?? address?.subregion ?? address?.region ?? "Current location";
+    if (!address) throw new Error("No address");
+
+    const name = address.city ?? address.district ?? address.subregion ?? address.region;
+    if (!name) throw new Error("No name");
+
+    // Neighbourhood, state, country — skipping blanks and repeats of the name.
+    const parts = [address.district, address.region, address.country].filter(
+      (part, i, all): part is string => !!part && part !== name && all.indexOf(part) === i,
+    );
+    return { name, description: parts.join(", ") };
   } catch {
-    return "Current location";
+    return { name: "Current location", description: "" };
   }
 }
 

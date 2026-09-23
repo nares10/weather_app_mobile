@@ -9,8 +9,8 @@ import type { Place } from "@/types/weather";
 // place means a different cache entry.
 export function useForecast(place: Place) {
   return useQuery({
-    queryKey: ["forecast", place.latitude, place.longitude, place.name],
-    queryFn: ({ signal }) => fetchForecast(place.latitude, place.longitude, place.name, signal),
+    queryKey: ["forecast", place.latitude, place.longitude],
+    queryFn: ({ signal }) => fetchForecast(place.latitude, place.longitude, signal),
     // Weather doesn't change by the second. Within 10 minutes, revisiting
     // a city shows cached data instantly without a new request.
     staleTime: 10 * 60 * 1000,

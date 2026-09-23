@@ -15,6 +15,7 @@ type GeocodingResponse = {
     longitude: number;
     country?: string;
     admin1?: string; // state / province
+    admin2?: string; // district / county
   }[];
 };
 
@@ -27,6 +28,14 @@ export async function searchCities(query: string, signal?: AbortSignal): Promise
     name: city.name,
     latitude: city.latitude,
     longitude: city.longitude,
-    description: [city.admin1, city.country].filter(Boolean).join(", "),
+    description: describe(city.name, [city.admin2, city.admin1, city.country]),
   }));
+}
+
+// "Jaipur" + ["Jaipur district", "Rajasthan", "India"] -> "Rajasthan, India".
+// Skip blanks and parts that just repeat the city name.
+function describe(name: string, parts: (string | undefined)[]): string {
+  return parts
+    .filter((part): part is string => !!part && !part.includes(name))
+    .join(", ");
 }

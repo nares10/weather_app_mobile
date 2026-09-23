@@ -36,7 +36,7 @@ src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         http.ts (fetchJson: timeout + friendly errors), openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
 src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationFallback
 src/lib/         weatherCodes.ts, formatting.ts, queryClient.ts (TanStack Query client + AppState focus)
-src/types/       weather.ts — app-owned shapes; API code converts into these
+src/types/       weather.ts — app-owned shapes (Forecast, Place with name + address description)
 src/theme/       colors.ts — light/dark palettes + useThemeColors()
 src/hooks/       useForecast, useDeviceLocation, useCitySearch, useDebouncedValue
 ```
