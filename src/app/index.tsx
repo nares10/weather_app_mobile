@@ -1,4 +1,5 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { type ReactNode, useState } from "react";
 import {
@@ -190,7 +191,8 @@ function Loading({ label }: { label: string }) {
 type ForecastViewProps = {
   place: Place;
   forecast: Forecast;
-  onRefresh: () => Promise<unknown>;
+  // TanStack Query's refetch: resolves (never rejects) with the new state.
+  onRefresh: () => Promise<{ isError: boolean }>;
 };
 
 function ForecastView({ place, forecast, onRefresh }: ForecastViewProps) {
@@ -204,8 +206,12 @@ function ForecastView({ place, forecast, onRefresh }: ForecastViewProps) {
   const [pulling, setPulling] = useState(false);
   const refresh = async () => {
     setPulling(true);
-    await onRefresh();
+    const result = await onRefresh();
     setPulling(false);
+    // A buzz when the refresh finishes, so you can feel it worked (or didn't).
+    Haptics.notificationAsync(
+      result.isError ? Haptics.NotificationFeedbackType.Error : Haptics.NotificationFeedbackType.Success,
+    ).catch(() => {});
   };
 
   return (
