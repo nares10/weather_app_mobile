@@ -18,9 +18,12 @@ export function PopupModal({ visible, onClose, title, children }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        {/* Inner Pressable swallows taps so they don't reach the backdrop. */}
-        <Pressable style={[styles.card, { backgroundColor: colors.card }]} onPress={() => {}}>
+      <View style={styles.container}>
+        {/* The backdrop is a separate layer *behind* the card, not a parent
+            of it. Wrapping the card in a Pressable would steal its touches,
+            which stops a ScrollView inside the card from scrolling. */}
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close" />
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={styles.header}>
             <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
             <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close" hitSlop={8}>
@@ -28,18 +31,21 @@ export function PopupModal({ visible, onClose, title, children }: Props) {
             </Pressable>
           </View>
           {children}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   card: {

@@ -12,13 +12,6 @@ type Props = {
 
 type LegendItem = { icon: IconName; text: string };
 
-const BUTTONS: LegendItem[] = [
-  { icon: "magnify", text: "Search for a city" },
-  { icon: "theme-light-dark", text: "Change theme (System, Light or Dark)" },
-  { icon: "crosshairs-gps", text: "Go back to the weather where you are" },
-  { icon: "information-outline", text: "Open this help" },
-];
-
 const DETAILS: LegendItem[] = [
   { icon: "weather-windy", text: "Wind speed" },
   { icon: "water-percent", text: "Humidity — how much moisture is in the air" },
@@ -32,8 +25,10 @@ export function HelpModal({ visible, onClose }: Props) {
 
   return (
     <PopupModal visible={visible} onClose={onClose} title="What the icons mean">
-      <ScrollView contentContainerStyle={styles.content}>
-        <Section title="Buttons" items={BUTTONS} />
+      {/* flexShrink lets the list shrink to fit the card's maxHeight;
+          without it the ScrollView grows to its full content height and
+          there's nothing left to scroll. */}
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <Section title="Weather" items={weather} />
         <Section title="Details" items={DETAILS} />
         <HelpTip text="Pull down on the weather to refresh it." />
@@ -64,6 +59,9 @@ function HelpTip({ text }: { text: string }) {
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexShrink: 1,
+  },
   content: {
     gap: 16,
     paddingBottom: 4,
