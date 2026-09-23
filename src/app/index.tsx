@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -16,7 +16,7 @@ import { CurrentWeather } from "@/components/CurrentWeather";
 import { DailyList } from "@/components/DailyList";
 import { ErrorView } from "@/components/ErrorView";
 import { HourlyStrip } from "@/components/HourlyStrip";
-import { LocationFallback } from "@/components/LocationFallback";
+import { LocationBanner } from "@/components/LocationBanner";
 import { useDeviceLocation } from "@/hooks/useDeviceLocation";
 import { useForecast } from "@/hooks/useForecast";
 import { useThemeColors } from "@/theme/colors";
@@ -54,35 +54,44 @@ function placeFromParams({ name, description, latitude, longitude }: HomeParams)
   return { name, description: description ?? "", latitude: lat, longitude: lon };
 }
 
-// Module-level, so it survives this component unmounting and remounting
-// (e.g. after choosing a city and then tapping "use my location").
-// We only want to push the user to Search automatically once per app launch.
-let autoOpenedSearch = false;
+// Shown when we can't get the device location (decision in PLAN.md).
+const DEFAULT_PLACE: Place = {
+  name: "Delhi",
+  description: "India",
+  latitude: 28.6139,
+  longitude: 77.209,
+};
 
 function DeviceLocationWeather() {
   const { state: location, retry } = useDeviceLocation();
-
-  // Decision from PLAN.md: if we can't get a location, open Search.
-  const noLocation = location.status === "denied" || location.status === "unavailable";
-  useEffect(() => {
-    if (noLocation && !autoOpenedSearch) {
-      autoOpenedSearch = true;
-      router.push("/search");
-    }
-  }, [noLocation]);
 
   switch (location.status) {
     case "locating":
       return <Loading label="Finding your location…" />;
     case "denied":
       return (
-        <LocationFallback
-          message="Location permission is off, so we can't show the weather where you are."
-          onRetry={location.canAskAgain ? retry : undefined}
+        <PlaceWeather
+          place={DEFAULT_PLACE}
+          banner={
+            <LocationBanner
+              message={`Location is off — showing ${DEFAULT_PLACE.name}.`}
+              onRetry={location.canAskAgain ? retry : undefined}
+            />
+          }
         />
       );
     case "unavailable":
-      return <LocationFallback message={location.message} onRetry={retry} />;
+      return (
+        <PlaceWeather
+          place={DEFAULT_PLACE}
+          banner={
+            <LocationBanner
+              message={`${location.message} Showing ${DEFAULT_PLACE.name}.`}
+              onRetry={retry}
+            />
+          }
+        />
+      );
     case "found":
       return <PlaceWeather place={location.place} />;
   }
@@ -91,7 +100,14 @@ function DeviceLocationWeather() {
 // A separate component so useForecast only runs once we have a place —
 // hooks can't be called conditionally, but components can be rendered
 // conditionally.
-function PlaceWeather({ place, showUseMyLocation = false }: { place: Place; showUseMyLocation?: boolean }) {
+type PlaceWeatherProps = {
+  place: Place;
+  showUseMyLocation?: boolean;
+  // Optional notice shown under the toolbar (e.g. why we're showing Delhi).
+  banner?: ReactNode;
+};
+
+function PlaceWeather({ place, showUseMyLocation = false, banner }: PlaceWeatherProps) {
   const forecast = useForecast(place);
 
   // Order matters: if a background refresh fails we still have the old
@@ -108,6 +124,7 @@ function PlaceWeather({ place, showUseMyLocation = false }: { place: Place; show
   return (
     <>
       <Toolbar showUseMyLocation={showUseMyLocation} />
+      {banner}
       {body}
     </>
   );

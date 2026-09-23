@@ -13,7 +13,7 @@ A React Native weather app built to learn. Learning comes first, polish second.
 | Fetching | Hand-rolled `fetch` + `useState`/`useEffect` first, refactor to TanStack Query later. No global state lib. |
 | Styling | Built-in `StyleSheet` |
 | Theme | Follow system light/dark via `useColorScheme` |
-| Location | `expo-location`, foreground permission. Denied/unavailable → open Search. |
+| Location | `expo-location`, foreground permission. Denied/unavailable → show **Delhi** as the default city with a banner (Use my location / Open settings). Search is always available from the toolbar. |
 | Units | Metric only (°C, km/h, mm). Times in the city's local time (`timezone=auto`). |
 | Icons | WMO weather code → `{ label, icon }` table (`src/lib/weatherCodes.ts`) using `@expo/vector-icons` MaterialCommunityIcons. Note: `@expo/vector-icons` is slated for deprecation — migrate to `@react-native-vector-icons` later. |
 | Search | Search-as-you-type, 400ms debounce, min 2 chars. No recent searches in v1. |
@@ -34,7 +34,7 @@ Later: favourites, °C/°F toggle, weather-based backgrounds/animations, offline
 ```
 src/app/         Expo Router screens (index.tsx = Home, search.tsx, _layout.tsx)
 src/api/         http.ts (fetchJson: timeout + friendly errors), openMeteo.ts (fetchForecast + pure parseForecast), geocoding.ts
-src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationFallback
+src/components/  CurrentWeather, HourlyStrip, DailyList, ErrorView, LocationBanner
 src/lib/         weatherCodes.ts, formatting.ts, queryClient.ts (TanStack Query client + AppState focus)
 src/types/       weather.ts — app-owned shapes (Forecast, Place with name + address description)
 src/theme/       colors.ts — light/dark palettes + useThemeColors()
